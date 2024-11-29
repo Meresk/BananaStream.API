@@ -52,6 +52,7 @@ func token(c *fiber.Ctx) error {
 	var request struct {
 		Room     string `json:"room"`
 		Identity string `json:"identity"`
+		Role     string `json:"role"`
 	}
 
 	if err := c.BodyParser(&request); err != nil {
@@ -68,10 +69,24 @@ func token(c *fiber.Ctx) error {
 
 	at := auth.NewAccessToken(apiKey, apiSecret)
 	grant := &auth.VideoGrant{
-		RoomJoin: true,
-		Room:     request.Room,
+		Room: request.Room,
 	}
-	at.SetVideoGrant(grant).SetValidFor(time.Hour).SetIdentity(request.Identity)
+
+	switch request.Role {
+	case "teacher":
+		grant.RoomJoin = true
+		grant.RoomCreate = true
+		grant.RoomAdmin = true
+	case "student":
+		grant.RoomJoin = true
+		grant.SetCanPublish(false)
+	default:
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid role",
+		})
+	}
+
+	at.SetVideoGrant(grant).SetValidFor(time.Hour * 2).SetIdentity(request.Identity)
 
 	token, err := at.ToJWT()
 	if err != nil {
