@@ -23,7 +23,7 @@ func main() {
 		panic("Failed to migrate database: " + err.Error())
 	}
 
-	routes.SetupRoutes(app)
+	routes.SetupRoutes(app, db)
 
 	log.Fatal(app.Listen(":3000"))
 }
