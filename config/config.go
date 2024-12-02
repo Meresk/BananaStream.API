@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	ApiKey      string
-	ApiSecret   string
-	DatabaseURL string
+	ApiKey           string
+	ApiSecret        string
+	DatabaseURL      string
+	LivekitServerURL string
 )
 
 func init() {
@@ -27,8 +28,9 @@ func init() {
 	ApiKey = os.Getenv("LIVEKIT_API_KEY")
 	ApiSecret = os.Getenv("LIVEKIT_API_SECRET")
 	DatabaseURL = os.Getenv("DATABASE_URL")
+	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
 
-	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" {
+	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" || LivekitServerURL == "" {
 		panic("Required environment variables are missing")
 	}
 }

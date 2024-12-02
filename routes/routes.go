@@ -7,4 +7,5 @@ import (
 
 func SetupRoutes(app *fiber.App) {
 	app.Post("/getToken", controllers.Token)
+	app.Get("/rooms", controllers.Rooms)
 }

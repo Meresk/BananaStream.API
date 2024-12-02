@@ -1,6 +1,8 @@
 package main
 
 import (
+	"BananaStream.API/db/dbConn"
+	"BananaStream.API/db/models"
 	"BananaStream.API/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -15,7 +17,11 @@ func main() {
 		AllowMethods: "GET,POST,HEAD,OPTIONS",
 	}))
 
-	//db := dbConn.Connect()
+	db := dbConn.Connect()
+	err := db.AutoMigrate(&models.User{})
+	if err != nil {
+		panic("Failed to migrate database: " + err.Error())
+	}
 
 	routes.SetupRoutes(app)
 
