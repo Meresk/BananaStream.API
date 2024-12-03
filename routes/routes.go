@@ -12,6 +12,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	//livekit
 	app.Post("/getToken", controllers.Token)
 	app.Get("/rooms", controllers.Rooms)
+	app.Post("/createRoom", middlewares.AuthMiddleware, controllers.CreateRoom)
 
 	//auth
 	app.Post("/login", func(c *fiber.Ctx) error {
