@@ -2,6 +2,7 @@ package routes
 
 import (
 	"BananaStream.API/controllers"
+	"BananaStream.API/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -18,5 +19,8 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	})
 	app.Post("/register", func(c *fiber.Ctx) error {
 		return controllers.Register(c, db)
+	})
+	app.Get("/isAuth", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
 	})
 }

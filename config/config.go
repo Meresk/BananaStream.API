@@ -11,6 +11,7 @@ var (
 	ApiSecret        string
 	DatabaseURL      string
 	LivekitServerURL string
+	JWTSecret        string
 )
 
 func init() {
@@ -29,8 +30,9 @@ func init() {
 	ApiSecret = os.Getenv("LIVEKIT_API_SECRET")
 	DatabaseURL = os.Getenv("DATABASE_URL")
 	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
+	JWTSecret = os.Getenv("JWT_SECRET_KEY")
 
-	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" || LivekitServerURL == "" {
+	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" || LivekitServerURL == "" || JWTSecret == "" {
 		panic("Required environment variables are missing")
 	}
 }
