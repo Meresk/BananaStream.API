@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"BananaStream.API/config"
 	"BananaStream.API/db/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 func Login(c *fiber.Ctx, db *gorm.DB) error {
@@ -23,7 +26,6 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
 		}
-		log.Println("Error fetching user:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal server error"})
 	}
 
@@ -32,8 +34,19 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid password"})
 	}
 
-	// TODO: need jwt
-	return c.JSON(fiber.Map{"message": "Login successful", "user": user})
+	jwtToken := jwt.New(jwt.SigningMethodHS256)
+	claims := jwtToken.Claims.(jwt.MapClaims)
+	claims["id"] = user.ID
+	claims["login"] = user.Login
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // время истечения токена
+
+	tokenString, err := jwtToken.SignedString([]byte(config.JWTSecret))
+	if err != nil {
+		log.Println("Error fetching user:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal server error"})
+	}
+
+	return c.JSON(fiber.Map{"token": tokenString})
 }
 
 func Register(c *fiber.Ctx, db *gorm.DB) error {
