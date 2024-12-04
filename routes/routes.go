@@ -10,7 +10,9 @@ import (
 func SetupRoutes(app *fiber.App, db *gorm.DB) {
 
 	//livekit
-	app.Post("/getToken", controllers.Token)
+	app.Post("/getTeacherToken", middlewares.AuthMiddleware, controllers.TeacherToken)
+	app.Post("/getStudentToken", controllers.StudentToken)
+
 	app.Get("/rooms", controllers.Rooms)
 	app.Post("/createRoom", middlewares.AuthMiddleware, controllers.CreateRoom)
 
