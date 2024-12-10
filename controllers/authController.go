@@ -38,7 +38,7 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID
 	claims["login"] = user.Login
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // время истечения токена
+	claims["exp"] = time.Now().Add(time.Hour * 10).Unix() // время истечения токена
 
 	tokenString, err := jwtToken.SignedString([]byte(config.JWTSecret))
 	if err != nil {

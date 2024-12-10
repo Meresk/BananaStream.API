@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/joho/godotenv"
 	"os"
@@ -15,15 +16,8 @@ var (
 )
 
 func init() {
-	envFile := "development.env" // Укажите имя файла по умолчанию
-
-	// Проверка, передан ли путь к .env через аргументы или переменные окружения
-	if customEnv := os.Getenv("ENV_FILE"); customEnv != "" {
-		envFile = customEnv
-	}
-
-	if err := godotenv.Load(envFile); err != nil {
-		log.Warnw("Warning: Failed to load %s file: %v", envFile, err)
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err) // Если файл не найден, программа завершится с ошибкой
 	}
 
 	ApiKey = os.Getenv("LIVEKIT_API_KEY")
@@ -32,7 +26,25 @@ func init() {
 	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
 	JWTSecret = os.Getenv("JWT_SECRET_KEY")
 
-	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" || LivekitServerURL == "" || JWTSecret == "" {
-		panic("Required environment variables are missing")
+	var missingVars []string
+
+	if ApiKey == "" {
+		missingVars = append(missingVars, "LIVEKIT_API_KEY")
+	}
+	if ApiSecret == "" {
+		missingVars = append(missingVars, "LIVEKIT_API_SECRET")
+	}
+	if DatabaseURL == "" {
+		missingVars = append(missingVars, "DATABASE_URL")
+	}
+	if LivekitServerURL == "" {
+		missingVars = append(missingVars, "LIVEKIT_SERVER_URL")
+	}
+	if JWTSecret == "" {
+		missingVars = append(missingVars, "JWT_SECRET_KEY")
+	}
+
+	if len(missingVars) > 0 {
+		panic(fmt.Sprintf("Required environment variables are missing: %v", missingVars))
 	}
 }
