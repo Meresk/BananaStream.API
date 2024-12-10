@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/joho/godotenv"
 	"os"
@@ -25,7 +26,25 @@ func init() {
 	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
 	JWTSecret = os.Getenv("JWT_SECRET_KEY")
 
-	if ApiKey == "" || ApiSecret == "" || DatabaseURL == "" || LivekitServerURL == "" || JWTSecret == "" {
-		panic("Required environment variables are missing")
+	var missingVars []string
+
+	if ApiKey == "" {
+		missingVars = append(missingVars, "LIVEKIT_API_KEY")
+	}
+	if ApiSecret == "" {
+		missingVars = append(missingVars, "LIVEKIT_API_SECRET")
+	}
+	if DatabaseURL == "" {
+		missingVars = append(missingVars, "DATABASE_URL")
+	}
+	if LivekitServerURL == "" {
+		missingVars = append(missingVars, "LIVEKIT_SERVER_URL")
+	}
+	if JWTSecret == "" {
+		missingVars = append(missingVars, "JWT_SECRET_KEY")
+	}
+
+	if len(missingVars) > 0 {
+		panic(fmt.Sprintf("Required environment variables are missing: %v", missingVars))
 	}
 }
