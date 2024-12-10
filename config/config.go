@@ -15,15 +15,8 @@ var (
 )
 
 func init() {
-	envFile := "development.env" // Укажите имя файла по умолчанию
-
-	// Проверка, передан ли путь к .env через аргументы или переменные окружения
-	if customEnv := os.Getenv("ENV_FILE"); customEnv != "" {
-		envFile = customEnv
-	}
-
-	if err := godotenv.Load(envFile); err != nil {
-		log.Warnw("Warning: Failed to load %s file: %v", envFile, err)
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err) // Если файл не найден, программа завершится с ошибкой
 	}
 
 	ApiKey = os.Getenv("LIVEKIT_API_KEY")
