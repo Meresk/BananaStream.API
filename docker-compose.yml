@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bananastream
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - services
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
+
+  api:
+    build:
+      context: ../courseProj/api
+      dockerfile: Dockerfile
+    env_file:
+      - ../courseProj/api/.env
+    environment:
+      - DATABASE_URL=root:root@tcp(db:3306)/bananastream?charset=utf8mb4&parseTime=True&loc=Local
+    depends_on:
+      - db
+    networks:
+      - services
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    networks:
+      - services
+
+volumes:
+  db_data:
+
+networks:
+  services:
+    external: true
+    driver: bridge
+    name: services
+    

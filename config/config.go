@@ -13,6 +13,7 @@ var (
 	DatabaseURL      string
 	LivekitServerURL string
 	JWTSecret        string
+	AllowOrigins     string
 )
 
 func init() {
@@ -25,6 +26,7 @@ func init() {
 	DatabaseURL = os.Getenv("DATABASE_URL")
 	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
 	JWTSecret = os.Getenv("JWT_SECRET_KEY")
+	AllowOrigins = os.Getenv("ALLOW_ORIGINS")
 
 	var missingVars []string
 
@@ -42,6 +44,9 @@ func init() {
 	}
 	if JWTSecret == "" {
 		missingVars = append(missingVars, "JWT_SECRET_KEY")
+	}
+	if AllowOrigins == "" {
+		missingVars = append(missingVars, "ALLOW_ORIGINS")
 	}
 
 	if len(missingVars) > 0 {
