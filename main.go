@@ -1,6 +1,7 @@
 package main
 
 import (
+	"BananaStream.API/config"
 	"BananaStream.API/db/dbConn"
 	"BananaStream.API/db/models"
 	"BananaStream.API/routes"
@@ -13,8 +14,10 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "GET,POST,HEAD,OPTIONS",
+		AllowOrigins:     config.AllowOrigins,
+		AllowMethods:     "GET,POST,HEAD,OPTIONS",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
 	}))
 
 	db := dbConn.Connect()
