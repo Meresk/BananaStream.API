@@ -57,6 +57,7 @@ func StudentToken(c *fiber.Ctx) error {
 
 	grant.RoomJoin = true
 	grant.SetCanPublish(false)
+	grant.SetCanPublishData(true)
 
 	at.SetVideoGrant(grant).SetValidFor(2 * time.Hour).SetIdentity(request.Identity)
 
