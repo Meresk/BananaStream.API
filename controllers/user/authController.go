@@ -1,4 +1,4 @@
-package controllers
+package user
 
 import (
 	"BananaStream.API/config"
@@ -38,6 +38,7 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID
 	claims["login"] = user.Login
+	claims["role"] = user.Role.Name
 	claims["exp"] = time.Now().Add(time.Hour * 10).Unix() // время истечения токена
 
 	tokenString, err := jwtToken.SignedString([]byte(config.JWTSecret))
@@ -53,6 +54,7 @@ func Register(c *fiber.Ctx, db *gorm.DB) error {
 	var request struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
+		RoleID   uint   `json:"role_id"`
 	}
 
 	if err := c.BodyParser(&request); err != nil {
@@ -72,6 +74,7 @@ func Register(c *fiber.Ctx, db *gorm.DB) error {
 	user := models.User{
 		Login:    request.Login,
 		Password: string(hashedPassword),
+		RoleID:   request.RoleID,
 	}
 	if err := db.Create(&user).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error creating user"})
