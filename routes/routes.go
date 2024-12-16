@@ -22,7 +22,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	app.Post("/login", func(c *fiber.Ctx) error {
 		return user.Login(c, db)
 	})
-	app.Post("/register", func(c *fiber.Ctx) error {
+	app.Post("/register", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
 		return user.Register(c, db)
 	})
 	app.Get("/isAuth", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
