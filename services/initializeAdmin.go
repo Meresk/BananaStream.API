@@ -10,8 +10,10 @@ import (
 func InitializeAdmin(db *gorm.DB) {
 	var adminRole models.Role
 	if err := db.FirstOrCreate(&adminRole, models.Role{Name: "admin"}).Error; err != nil {
-		log.Infof("Admin role already exist: %s", err.Error())
+		log.Warnw("Failed to initialize admin role", "error", err)
 	}
+
+	log.Info("Admin role already exist")
 
 	var adminUser models.User
 	if err := db.First(&adminUser, models.User{RoleID: adminRole.ID}).Error; err != nil {
@@ -34,5 +36,5 @@ func InitializeAdmin(db *gorm.DB) {
 
 		return
 	}
-	log.Warnw("Admin user already exist")
+	log.Info("Admin user already exist")
 }

@@ -42,4 +42,18 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	app.Delete("/roles/:id", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
 		return role.Delete(c, db)
 	})
+
+	//user
+	app.Get("/users", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
+		return user.GetAll(c, db)
+	})
+	app.Get("/users/:id", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
+		return user.Show(c, db)
+	})
+	app.Put("/users/:id", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
+		return user.Update(c, db)
+	})
+	app.Delete("/users/:id", middlewares.AuthMiddleware, func(c *fiber.Ctx) error {
+		return user.Delete(c, db)
+	})
 }
