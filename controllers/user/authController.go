@@ -1,13 +1,13 @@
-package controllers
+package user
 
 import (
 	"BananaStream.API/config"
 	"BananaStream.API/db/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 	}
 
 	var user models.User
-	if err := db.Where("login = ?", request.Login).First(&user).Error; err != nil {
+	if err := db.Preload("Role").Where("login = ?", request.Login).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
 		}
@@ -38,11 +38,12 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID
 	claims["login"] = user.Login
+	claims["role"] = user.Role.Name
 	claims["exp"] = time.Now().Add(time.Hour * 10).Unix() // время истечения токена
 
 	tokenString, err := jwtToken.SignedString([]byte(config.JWTSecret))
 	if err != nil {
-		log.Println("Error fetching user:", err)
+		log.Infof("Error fetching user:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal server error"})
 	}
 
@@ -53,12 +54,14 @@ func Register(c *fiber.Ctx, db *gorm.DB) error {
 	var request struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
+		RoleID   uint   `json:"role_id"`
 	}
 
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
+	//TODO: need to catch record not found if user with request.Login didn't exist
 	var existingUser models.User
 	if err := db.Where("login = ?", request.Login).First(&existingUser).Error; err == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already exists"})
@@ -72,10 +75,15 @@ func Register(c *fiber.Ctx, db *gorm.DB) error {
 	user := models.User{
 		Login:    request.Login,
 		Password: string(hashedPassword),
+		RoleID:   request.RoleID,
 	}
 	if err := db.Create(&user).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error creating user"})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"userId": user.ID})
+	if err := db.Preload("Role").First(&user, user.ID).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error loading user with role"})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"user": user})
 }

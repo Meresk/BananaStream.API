@@ -14,6 +14,7 @@ var (
 	LivekitServerURL string
 	JWTSecret        string
 	AllowOrigins     string
+	DefaultAdminPass string
 )
 
 func init() {
@@ -27,6 +28,7 @@ func init() {
 	LivekitServerURL = os.Getenv("LIVEKIT_SERVER_URL")
 	JWTSecret = os.Getenv("JWT_SECRET_KEY")
 	AllowOrigins = os.Getenv("ALLOW_ORIGINS")
+	DefaultAdminPass = os.Getenv("DEFAULT_ADMIN_PASSWORD")
 
 	var missingVars []string
 
@@ -47,6 +49,10 @@ func init() {
 	}
 	if AllowOrigins == "" {
 		missingVars = append(missingVars, "ALLOW_ORIGINS")
+	}
+
+	if DefaultAdminPass == "" {
+		log.Info("Default admin password is - admin")
 	}
 
 	if len(missingVars) > 0 {
