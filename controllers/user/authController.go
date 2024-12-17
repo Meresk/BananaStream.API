@@ -22,7 +22,7 @@ func Login(c *fiber.Ctx, db *gorm.DB) error {
 	}
 
 	var user models.User
-	if err := db.Where("login = ?", request.Login).First(&user).Error; err != nil {
+	if err := db.Preload("Role").Where("login = ?", request.Login).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
 		}
