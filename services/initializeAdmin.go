@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"os"
 )
 
 func InitializeAdmin(db *gorm.DB) {
@@ -19,7 +20,14 @@ func InitializeAdmin(db *gorm.DB) {
 	if err := db.First(&adminUser, models.User{RoleID: adminRole.ID}).Error; err != nil {
 		log.Infof("Admin user does not exist, start creation")
 
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+		defaultAdminPass := os.Getenv("DefaultAdminPassword")
+
+		// Устанавливаем значение по умолчанию, если переменная окружения пуста
+		if defaultAdminPass == "" {
+			defaultAdminPass = "admin"
+		}
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultAdminPass), bcrypt.DefaultCost)
 		if err != nil {
 			log.Fatalf("Failed to generate password: %s", err.Error())
 		}
