@@ -61,7 +61,6 @@ func Register(c *fiber.Ctx, db *gorm.DB) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	//TODO: need to catch record not found if user with request.Login didn't exist
 	var existingUser models.User
 	if err := db.Where("login = ?", request.Login).First(&existingUser).Error; err == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already exists"})
